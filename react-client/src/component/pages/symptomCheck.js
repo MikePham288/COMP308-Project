@@ -124,7 +124,7 @@ const SymptomCheck = (props) => {
               />
             </div>
             <div className="col-2 no-padding">
-              <label htmlFor="soreThroat">Sneezing</label>
+              <label htmlFor="soreThroat">Sore Throat</label>
             </div>
           </div>
         </Form>
