@@ -20,7 +20,7 @@ const Navbar = ({ title }) => {
     <Fragment>
       <li>Hello {user && user.firstName}</li>
       <li>
-        <a href="/dashboard">Dashboard</a>
+        <Link to="/dashboard">Dashboard</Link>
       </li>
       <li>
         <a href="#i" onClick={handleLogout}>
