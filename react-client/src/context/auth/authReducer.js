@@ -33,6 +33,7 @@ export default (state, action) => {
     case LOGIN_FAIL:
     case LOGOUT:
       sessionStorage.removeItem("token");
+      localStorage.removeItem("token");
       return {
         ...state,
         token: null,

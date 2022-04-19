@@ -155,8 +155,8 @@ const AuthState = (props) => {
     }
   };
   // Logout
-  const logout = () => {
-    dispatch({
+  const logout = async () => {
+    await dispatch({
       type: LOGOUT,
     });
   };

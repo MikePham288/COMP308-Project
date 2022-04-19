@@ -11,8 +11,8 @@ const Navbar = ({ title }) => {
 
   const { isAuthenticated, logout, user } = authContext;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     history("/login");
   };
   // If the user is logged in then this fragment gets displayed in Navbar
