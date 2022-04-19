@@ -34,10 +34,10 @@ const AddExistingPatientMotivationalTip = (props) => {
           .then((result) => {
             console.log(result.data);
 
-            navigate("/showDetails", { state: { _id: location.state.id } });
+            navigate("/showDetails", { state: { _id: location.state._id } });
           })
           .catch((error) => {
-            navigate("/showDetails", { state: { _id: location.state.id } });
+            navigate("/showDetails", { state: { _id: location.state._id } });
 
             console.log("error in fetching nurses:", error);
           });

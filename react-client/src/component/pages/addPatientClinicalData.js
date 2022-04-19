@@ -36,14 +36,14 @@ const AddPatientClinicalData = (props) => {
   const addPatientClinicalData = async () => {
     if (location.state) {
       await axios
-        .post(apiUrl + location.state.id, clinicalData)
+        .post(apiUrl + location.state._id, clinicalData)
         .then((result) => {
           console.log(result.data);
 
-          navigate("/showDetails", { state: { _id: location.state.id } });
+          navigate("/showDetails", { state: { _id: location.state._id } });
         })
         .catch((error) => {
-          navigate("/showDetails", { state: { _id: location.state.id } });
+          navigate("/showDetails", { state: { _id: location.state._id } });
 
           console.log("error in fetching nurses:", error);
         });
@@ -54,7 +54,7 @@ const AddPatientClinicalData = (props) => {
 
   const handleOnSubmit = (event) => {
     event.preventDefault();
-    if (location.state.id) {
+    if (location.state._id) {
       addPatientClinicalData();
     } else {
       navigate("/dashboard");
