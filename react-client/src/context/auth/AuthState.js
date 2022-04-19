@@ -142,7 +142,9 @@ const AuthState = (props) => {
         },
       });
       console.log("data: ", data);
-      dispatch({
+      sessionStorage.setItem("token", data.signIn.token);
+      localStorage.setItem("token", data.signIn.token);
+      await dispatch({
         type: LOGIN_SUCCESS,
         payload: data.signIn,
       });
@@ -156,6 +158,8 @@ const AuthState = (props) => {
   };
   // Logout
   const logout = async () => {
+    sessionStorage.removeItem("token");
+    localStorage.removeItem("token");
     await dispatch({
       type: LOGOUT,
     });
