@@ -1,7 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import AuthContext from "../../context/auth/authContext";
+import { useEffect } from "react";
 import "../../App.css";
-import { withRouter } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router";
 
 const PatientClinicalData = (props) => {
@@ -72,7 +70,7 @@ const PatientClinicalData = (props) => {
                   <td>{data.slope}</td>
                   <td>{data.ca}</td>
                   <td>{data.thal}</td>
-                  <td>{data.createdOn}</td>
+                  <td>{new Date(Number(data.createdOn)).toDateString()}</td>
                   <td>
                     <button
                       className="btn btn-danger"

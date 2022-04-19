@@ -8,13 +8,10 @@ import AuthState from "./context/auth/AuthState";
 import AlertState from "./context/alert/AlertState";
 import Register from "./component/auth/Register";
 import Navbar from "./component/layout/Navbar";
-import setAuthToken from "../src/utils/setAuthToken";
 import PrivateRoute from "./component/routing/privateRoute";
 import PatientVitalSign from "./component/patient/PatientVitalSign";
 import PatientState from "./context/patient/PatientState";
 import "./App.css";
-import { useContext } from "react";
-import { Navigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 //
 
@@ -29,10 +26,6 @@ import AddExistingPatientMotivationalTip from "./component/pages/existingMotivat
 import RiskRateResults from "./component/pages/riskRateResult";
 import SendEmergencyAlert from "./component/pages/sendEmergencyAlert";
 //
-
-if (sessionStorage.token) {
-  setAuthToken(sessionStorage.token);
-}
 
 function App() {
   return (
@@ -149,3 +142,4 @@ function App() {
 }
 //<Route render ={()=> < App />} path="/" />
 export default App;
+

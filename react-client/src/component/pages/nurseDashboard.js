@@ -1,17 +1,33 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
 import "../../App.css";
-import axios from "axios";
-import { useLocation, useNavigate } from "react-router";
-import { withRouter } from "react-router-dom";
+import { useNavigate } from "react-router";
+import gql from "graphql-tag";
+import { client } from "../..";
+
+const GET_PATIENT_LIST = gql`
+  query GetInfo {
+    getAllPatientsByNurseId {
+      _id
+      account {
+        _id
+        firstName
+        lastName
+        email
+        address
+        city
+        phoneNumber
+        accountType
+      }
+    }
+  }
+`;
 
 const NurseDashboard = (props) => {
   const authContext = useContext(AuthContext);
   const { loadUser } = authContext;
   const [patientsList, setPatientsList] = useState([]);
-  const apiUrl = "http://localhost:3000/api/getPatientsForNurse";
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     loadUser();
@@ -19,13 +35,12 @@ const NurseDashboard = (props) => {
   }, []);
 
   const getAllPatients = async () => {
-    await axios
-      .get(apiUrl)
-      .then((result) => {
-        setPatientsList(result.data);
+    await client
+      .query({
+        query: GET_PATIENT_LIST,
       })
-      .catch((error) => {
-        console.log("error in fetching nurses:", error);
+      .then((response) => {
+        setPatientsList(response.data.getAllPatientsByNurseId);
       });
   };
 
@@ -59,7 +74,7 @@ const NurseDashboard = (props) => {
                   <th>Actions</th>
                 </tr>
                 {patientsList.map((patient, idx) => {
-                  console.log(patient.id);
+                  // console.log("patient: ", patient);
                   return (
                     <tr key={idx}>
                       <td>
@@ -73,7 +88,7 @@ const NurseDashboard = (props) => {
                         <button
                           className="btn btn-primary"
                           onClick={() => {
-                            handleViewVitals(patient.id);
+                            handleViewVitals(patient._id);
                           }}
                         >
                           View Details

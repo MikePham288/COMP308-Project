@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import "../../App.css";
-import { withRouter } from "react-router-dom";
 
 const PatientEmergencyAlerts = (props) => {
   console.log("alert", props.emergencyAlerts);
@@ -27,7 +26,7 @@ const PatientEmergencyAlerts = (props) => {
               {props.emergencyAlerts.map((alert, idx) => (
                 <tr key={idx}>
                   <td>{alert.reason}</td>
-                  <td>{alert.date}</td>
+                  <td>{new Date(Number(alert.date)).toDateString()}</td>
                 </tr>
               ))}
             </tbody>

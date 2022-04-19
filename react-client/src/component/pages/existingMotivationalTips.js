@@ -1,16 +1,40 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
-import axios from "axios";
-import { withRouter } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router";
 import { Form, Button } from "react-bootstrap";
+import gql from "graphql-tag";
+import { client } from "../..";
+
+const UPDATE_MOTIVATIONAL_TIP = gql`
+  mutation UpdatePatientMotivationalTip(
+    $motivationalTipId: String
+    $patientId: String
+  ) {
+    updatePatientMotivationalTip(
+      motivationalTipId: $motivationalTipId
+      patientId: $patientId
+    ) {
+      _id
+    }
+  }
+`;
+
+const GET_ALL_MOTIVATIONAL_TIPS = gql`
+  query GetAllMotivationalTips {
+    getAllMotivationalTips {
+      type
+      videoLink
+      _id
+    }
+  }
+`;
 
 const AddExistingPatientMotivationalTip = (props) => {
   const authContext = useContext(AuthContext);
   const { loadUser } = authContext;
   const [motivationalTip, setMotivationalTip] = useState({
     videoLink: "",
-    id: "",
+    _id: "",
     type: "video",
   });
   const navigate = useNavigate();
@@ -18,7 +42,6 @@ const AddExistingPatientMotivationalTip = (props) => {
 
   const [motivationalTips, setMotivationalTips] = useState([]);
   const apiUrl = "http://localhost:3000/api/getAllMotivationalTips";
-  const updateUrl = "http://localhost:3000/api/updatePatientMotivationalTip/";
 
   useEffect(() => {
     console.log(location.state._id);
@@ -27,10 +50,17 @@ const AddExistingPatientMotivationalTip = (props) => {
   }, []);
 
   const addToPatientMotivationalTip = async () => {
+    console.log(motivationalTip);
     if (location.state._id) {
-      if (motivationalTip.id) {
-        await axios
-          .post(updateUrl + location.state._id, { id: motivationalTip.id })
+      if (motivationalTip._id) {
+        await client
+          .mutate({
+            mutation: UPDATE_MOTIVATIONAL_TIP,
+            variables: {
+              patientId: location.state._id,
+              motivationalTipId: motivationalTip._id,
+            },
+          })
           .then((result) => {
             console.log(result.data);
 
@@ -49,13 +79,18 @@ const AddExistingPatientMotivationalTip = (props) => {
 
   const getAllMotivationalTips = async () => {
     if (location.state._id) {
-      await axios
-        .get(apiUrl)
+      await client
+        .query({
+          query: GET_ALL_MOTIVATIONAL_TIPS,
+        })
         .then((result) => {
-          console.log(result.data);
-          setMotivationalTips(result.data);
-          if (result.data.length !== 0) {
-            setMotivationalTip(result.data[0]);
+          console.log(
+            "getallmotivationaltips: ",
+            result.data.getAllMotivationalTips
+          );
+          setMotivationalTips(result.data.getAllMotivationalTips);
+          if (result.data.getAllMotivationalTips.length !== 0) {
+            setMotivationalTip(result.data.getAllMotivationalTips[0]);
           }
         })
         .catch((error) => {

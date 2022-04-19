@@ -1,9 +1,19 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, withRouter } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router";
 import AuthContext from "../../context/auth/authContext";
 import "../../App.css";
-import axios from "axios";
+import gql from "graphql-tag";
+import { client } from "../..";
+
+const LATEST_MOTIVATIONAL_TIP = gql`
+  query GetLatestMotivationalTip {
+    getLatestMotivationalTip {
+      type
+      videoLink
+      _id
+    }
+  }
+`;
 
 const PatientDashboard = (props) => {
   const authContext = useContext(AuthContext);
@@ -13,8 +23,7 @@ const PatientDashboard = (props) => {
     videoLink: "",
     type: "video",
   });
-  const motivationalTipUrl =
-    "http://localhost:3000/api/getLatestMotivationalTip";
+
   const navigate = useNavigate();
   const location = useLocation();
   console.log(location);
@@ -26,11 +35,14 @@ const PatientDashboard = (props) => {
   }, []);
 
   const getLatestMotivationalTip = async () => {
-    await axios
-      .get(motivationalTipUrl)
+    await client
+      .query({
+        query: LATEST_MOTIVATIONAL_TIP,
+      })
       .then((result) => {
-        if (result.data) {
-          setMotivationalTip(result.data);
+        console.log("result:", result.data.getLatestMotivationalTip);
+        if (result.data.getLatestMotivationalTip) {
+          setMotivationalTip(result.data.getLatestMotivationalTip);
         }
       })
       .catch((error) => {

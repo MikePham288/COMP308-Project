@@ -2,7 +2,24 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/auth/authContext";
 import AlertContext from "../../context/alert/alertContext";
-import axios from "axios";
+import gql from "graphql-tag";
+import { client } from "../..";
+
+const GET_ALL_NURSES = gql`
+  query GetAllNurses {
+    getAllNurses {
+      _id
+      firstName
+      lastName
+      email
+      password
+      address
+      city
+      phoneNumber
+      accountType
+    }
+  }
+`;
 
 const Register = () => {
   // Redirect to appropriate component using history
@@ -15,8 +32,6 @@ const Register = () => {
   const { register, error, clearErrors, isAuthenticated } = authContext;
   // destructure state from alertContext
   const { setAlert } = alertContext;
-
-  const apiUrl = "http://localhost:3000/api/nurses";
 
   // states to get the user lregistration information in the form
   const [user, setUser] = useState({
@@ -42,6 +57,7 @@ const Register = () => {
     city,
     phoneNumber,
     accountType,
+    nurse_id = "",
   } = user;
 
   const [nursesList, setNursesList] = useState([]);
@@ -73,11 +89,14 @@ const Register = () => {
   };
 
   const getAllNurses = async () => {
-    await axios
-      .get("http://localhost:3000/api/nurses")
+    await client
+      .query({
+        query: GET_ALL_NURSES,
+      })
       .then((result) => {
-        setNursesList(result.data);
-        setNurseId(result.data[0].id);
+        console.log(result);
+        setNursesList(result.data.getAllNurses);
+        setNurseId(result.data.getAllNurses[0].id);
       })
       .catch((error) => {
         console.log("error in fetching nurses:", error);
@@ -102,7 +121,7 @@ const Register = () => {
             city,
             phoneNumber,
             accountType,
-            nurseId,
+            nurse_id: nurseId,
           });
         } else {
           setAlert("Please select nurse for the patient.", "danger");
@@ -117,7 +136,7 @@ const Register = () => {
           city,
           phoneNumber,
           accountType,
-          nurseId,
+          nurse_id,
         });
       }
     }

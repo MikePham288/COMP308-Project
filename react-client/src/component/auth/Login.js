@@ -2,7 +2,6 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/auth/authContext";
 import AlertContext from "../../context/alert/alertContext";
-import { replace } from "lodash";
 
 const Login = () => {
   // used for accessing login information from this component
@@ -42,12 +41,13 @@ const Login = () => {
   const onChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
+
   // Submit function
   const onSubmit = async (e) => {
     e.preventDefault();
+    await login(user.email, user.password);
 
     console.log("Login submit", token);
-    await login(user);
   };
 
   return (

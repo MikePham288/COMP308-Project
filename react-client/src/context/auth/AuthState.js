@@ -1,8 +1,9 @@
 import { useReducer } from "react";
-import axios from "axios";
 import AuthContext from "./authContext";
 import authReducer from "./authReducer";
-import setAuthToken from "../../utils/setAuthToken";
+import { gql } from "@apollo/client";
+import { client } from "../..";
+
 // These are the types that defines the action types in useReducer
 import {
   REGISTER_SUCCESS,
@@ -14,6 +15,59 @@ import {
   LOGOUT,
   CLEAR_ERRORS,
 } from "../types";
+
+const LOGIN_MUTATION = gql`
+  mutation SignIn($email: String, $password: String) {
+    signIn(email: $email, password: $password) {
+      id
+      token
+    }
+  }
+`;
+
+const GET_USER_INFO = gql`
+  query GetInfo {
+    getInfo {
+      _id
+      firstName
+      lastName
+      email
+      address
+      phoneNumber
+      city
+      accountType
+    }
+  }
+`;
+
+const SIGN_UP = gql`
+  mutation CreateAccount(
+    $firstName: String
+    $lastName: String
+    $email: String
+    $password: String
+    $address: String
+    $city: String
+    $phoneNumber: String
+    $accountType: String
+    $nurseId: String
+  ) {
+    createAccount(
+      firstName: $firstName
+      lastName: $lastName
+      email: $email
+      password: $password
+      address: $address
+      city: $city
+      phoneNumber: $phoneNumber
+      accountType: $accountType
+      nurseId: $nurseId
+    ) {
+      id
+      token
+    }
+  }
+`;
 
 const AuthState = (props) => {
   // Declare the states here
@@ -29,45 +83,47 @@ const AuthState = (props) => {
 
   // Load User
   const loadUser = async () => {
-    // @todo - load the token into global headers
-    if (sessionStorage.token) {
-      setAuthToken(sessionStorage.token);
-    }
     try {
-      const res = await axios.get("http://localhost:3000/api/auth");
+      const result = await client.query({
+        query: GET_USER_INFO,
+      });
+      console.log("info: ", result.data);
 
       dispatch({
         type: USER_LOADED,
-        payload: res.data,
+        payload: result.data.getInfo[0],
       });
     } catch (err) {
+      console.log(err);
       dispatch({ type: AUTH_ERROR });
     }
   };
   // Register User
   const register = async (formData) => {
-    // making post request and sending data, so we need content type to be application/json in header
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/createAccount",
-        formData,
-        config
-      );
-      console.log(res.data);
+      const vary = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        address: formData.address,
+        city: formData.city,
+        phoneNumber: formData.phoneNumber,
+        accountType: formData.accountType,
+        nurseId: formData.nurse_id,
+      };
+      const res = await client.mutate({
+        mutation: SIGN_UP,
+        variables: vary,
+      });
       dispatch({
         type: REGISTER_SUCCESS,
-        payload: res.data,
+        payload: res.data.createAccount,
       });
 
       await loadUser();
     } catch (err) {
-      console.log(err.response);
+      console.log(err);
       dispatch({
         type: REGISTER_FAIL,
         payload: err.response.data.msg,
@@ -76,25 +132,20 @@ const AuthState = (props) => {
   };
 
   // Login User
-  const login = async (formData) => {
-    const config = {
-      headers: {
-        Content: "application/json",
-      },
-    };
-
+  const login = async (email, password) => {
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/signIn",
-        formData,
-        config
-      );
-
+      const { data } = await client.mutate({
+        mutation: LOGIN_MUTATION,
+        variables: {
+          email: email,
+          password: password,
+        },
+      });
+      console.log("data: ", data);
       dispatch({
         type: LOGIN_SUCCESS,
-        payload: res.data,
+        payload: data.signIn,
       });
-
       await loadUser();
     } catch (err) {
       dispatch({

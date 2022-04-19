@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
 import "../../App.css";
-import { withRouter } from "react-router-dom";
 import {
   buildStyles,
   CircularProgressbar,

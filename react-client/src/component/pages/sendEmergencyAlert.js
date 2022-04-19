@@ -1,9 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
-import axios from "axios";
-import { withRouter } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import gql from "graphql-tag";
+import { client } from "../..";
+
+const SEND_EMERGENCY_ALERT = gql`
+  mutation SendEmergencyAlert($reason: String) {
+    sendEmergencyAlert(reason: $reason)
+  }
+`;
 
 const SendEmergencyAlert = (props) => {
   const authContext = useContext(AuthContext);
@@ -11,7 +17,6 @@ const SendEmergencyAlert = (props) => {
   const [emergencyAlert, setEmergencyAlert] = useState({
     reason: "",
   });
-  const apiUrl = "http://localhost:3000/api/sendEmergencyAlert";
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,14 +24,19 @@ const SendEmergencyAlert = (props) => {
   }, []);
 
   const sendEmergencyAlert = async () => {
-    await axios
-      .post(apiUrl, emergencyAlert)
+    await client
+      .mutate({
+        mutation: SEND_EMERGENCY_ALERT,
+        variables: {
+          reason: emergencyAlert.reason,
+        },
+      })
       .then((result) => {
         console.log(result.data);
         navigate("/dashboard");
       })
       .catch((error) => {
-        navigate("/dashboard");
+        // navigate("/dashboard");
 
         console.log("error in saving result:", error);
       });

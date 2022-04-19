@@ -1,9 +1,44 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
-import axios from "axios";
-import { withRouter } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router";
+import gql from "graphql-tag";
+import { client } from "../..";
+
+const ADD_VITAL_SIGN = gql`
+  mutation AddVitalSign(
+    $patientId: String
+    $pulseRate: Float
+    $bloodPressure: String
+    $weight: Float
+    $temperature: Float
+    $respiratoryRate: Float
+    $createdBy: String
+  ) {
+    addVitalSign(
+      patientId: $patientId
+      pulseRate: $pulseRate
+      bloodPressure: $bloodPressure
+      weight: $weight
+      temperature: $temperature
+      respiratoryRate: $respiratoryRate
+      createdBy: $createdBy
+    ) {
+      _id
+      account {
+        _id
+      }
+      vitalSigns {
+        pulseRate
+        bloodPressure
+        weight
+        temperature
+        respiratoryRate
+        createdBy
+      }
+    }
+  }
+`;
 
 const AddPatientVitalSign = (props) => {
   const navigate = useNavigate();
@@ -18,7 +53,6 @@ const AddPatientVitalSign = (props) => {
     respiratoryRate: 0,
     createdBy: "NURSE",
   });
-  const apiUrl = "http://localhost:3000/api/addPatientVitalSigns/";
 
   useEffect(() => {
     console.log(location.state._id);
@@ -27,8 +61,19 @@ const AddPatientVitalSign = (props) => {
 
   const addPatientVitalSigns = async () => {
     if (location.state._id) {
-      await axios
-        .post(apiUrl + location.state._id, vitalSigns)
+      await client
+        .mutate({
+          mutation: ADD_VITAL_SIGN,
+          variables: {
+            patientId: location.state._id,
+            pulseRate: Number(vitalSigns.pulseRate),
+            bloodPressure: vitalSigns.bloodPressure.toString(),
+            weight: Number(vitalSigns.weight),
+            temperature: Number(vitalSigns.temperature),
+            respiratoryRate: Number(vitalSigns.respiratoryRate),
+            createdBy: "NURSE",
+          },
+        })
         .then((result) => {
           console.log(result.data);
           navigate("/showDetails", {

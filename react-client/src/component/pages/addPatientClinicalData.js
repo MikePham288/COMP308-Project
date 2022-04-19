@@ -1,8 +1,48 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
-import axios from "axios";
 import { useLocation, useNavigate } from "react-router";
 import { Form, Button } from "react-bootstrap";
+import gql from "graphql-tag";
+import { client } from "../..";
+const ADD_PATIENT_CLINICAL_DATA = gql`
+  mutation Mutation(
+    $patientId: String
+    $age: Int
+    $sex: Int
+    $cp: Float
+    $trestbps: Float
+    $chol: Float
+    $restecg: Float
+    $fbs: Float
+    $thalach: Float
+    $exang: Float
+    $oldpeak: Float
+    $slope: Float
+    $ca: Float
+    $riskCategory: Float
+    $thal: Float
+  ) {
+    addClinicalData(
+      patientId: $patientId
+      age: $age
+      sex: $sex
+      cp: $cp
+      trestbps: $trestbps
+      chol: $chol
+      restecg: $restecg
+      fbs: $fbs
+      thalach: $thalach
+      exang: $exang
+      oldpeak: $oldpeak
+      slope: $slope
+      ca: $ca
+      riskCategory: $riskCategory
+      thal: $thal
+    ) {
+      _id
+    }
+  }
+`;
 
 const AddPatientClinicalData = (props) => {
   const authContext = useContext(AuthContext);
@@ -23,8 +63,6 @@ const AddPatientClinicalData = (props) => {
     thal: 0,
     riskCategory: 0,
   });
-  const apiUrl = "http://localhost:3000/api/addClinicalData/";
-  const trainUrl = "http://localhost:3000/run";
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,15 +73,34 @@ const AddPatientClinicalData = (props) => {
 
   const addPatientClinicalData = async () => {
     if (location.state) {
-      await axios
-        .post(apiUrl + location.state._id, clinicalData)
+      await client
+        .mutate({
+          mutation: ADD_PATIENT_CLINICAL_DATA,
+          variables: {
+            patientId: location.state._id,
+            age: Number(clinicalData.age),
+            sex: Number(clinicalData.sex),
+            cp: Number(clinicalData.cp),
+            trestbps: Number(clinicalData.trestbps),
+            chol: Number(clinicalData.chol),
+            restecg: Number(clinicalData.restecg),
+            fbs: Number(clinicalData.fbs),
+            thalach: Number(clinicalData.thalach),
+            exang: Number(clinicalData.exang),
+            oldpeak: Number(clinicalData.oldpeak),
+            slope: Number(clinicalData.slope),
+            ca: Number(clinicalData.ca),
+            riskCategory: Number(clinicalData.riskCategory),
+            thal: Number(clinicalData.thal),
+          },
+        })
         .then((result) => {
           console.log(result.data);
 
           navigate("/showDetails", { state: { _id: location.state._id } });
         })
         .catch((error) => {
-          navigate("/showDetails", { state: { _id: location.state._id } });
+          // navigate("/showDetails", { state: { _id: location.state._id } });
 
           console.log("error in fetching nurses:", error);
         });

@@ -1,12 +1,75 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
-import axios from "axios";
-import { withRouter } from "react-router-dom";
 import PatientMotivationalTips from "./patientMotivationalTip";
 import PatientVitalSigns from "./patientVitalSigns";
 import PatientClinicalData from "./patientClinicalData";
 import { useLocation, useNavigate } from "react-router";
 import PatientEmergencyAlerts from "./patientEmergencyAlerts";
+import gql from "graphql-tag";
+import { client } from "../..";
+const GET_PATIENT_BY_DETAILS = gql`
+  query GetInfo($getPatientByIdId: String) {
+    getPatientById(id: $getPatientByIdId) {
+      _id
+      account {
+        _id
+        firstName
+        lastName
+        email
+        password
+        address
+        city
+        phoneNumber
+        accountType
+      }
+      vitalSigns {
+        pulseRate
+        bloodPressure
+        weight
+        temperature
+        respiratoryRate
+        createdBy
+      }
+      emergencyAlerts {
+        reason
+        notified
+        date
+      }
+      motivationalTips {
+        type
+        videoLink
+      }
+      clinicalData {
+        age
+        sex
+        cp
+        trestbps
+        chol
+        fbs
+        restecg
+        thalach
+        exang
+        oldpeak
+        slope
+        ca
+        thal
+        riskCategory
+        createdOn
+      }
+      nurse {
+        _id
+        firstName
+        lastName
+        email
+        password
+        address
+        city
+        phoneNumber
+        accountType
+      }
+    }
+  }
+`;
 
 const PatientDetails = (props) => {
   const authContext = useContext(AuthContext);
@@ -24,7 +87,6 @@ const PatientDetails = (props) => {
     city: "",
     address: "",
   });
-  const apiUrl = "http://localhost:3000/api/patientDetails/";
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -36,18 +98,20 @@ const PatientDetails = (props) => {
 
   const getPatientById = async () => {
     if (location.state._id) {
-      await axios
-        .get(apiUrl + location.state._id)
-        .then((result) => {
-          console.log(result.data);
-          setMotivationalTips(result.data.motivationalTips);
-          setPatientDetails(result.data.account);
-          setVitalSigns(result.data.vitalSigns);
-          setClinicalData(result.data.clinicalData);
-          setEmergencyAlerts(result.data.emergencyAlerts);
+      await client
+        .query({
+          query: GET_PATIENT_BY_DETAILS,
+          variables: {
+            getPatientByIdId: location.state._id,
+          },
         })
-        .catch((error) => {
-          console.log("error in fetching nurses:", error);
+        .then((response) => {
+          console.log(response);
+          setMotivationalTips(response.data.getPatientById.motivationalTips);
+          setPatientDetails(response.data.getPatientById.account);
+          setVitalSigns(response.data.getPatientById.vitalSigns);
+          setClinicalData(response.data.getPatientById.clinicalData);
+          setEmergencyAlerts(response.data.getPatientById.emergencyAlerts);
         });
     } else {
       navigate("/dashboard");
@@ -103,7 +167,7 @@ const PatientDetails = (props) => {
           <div className="row">
             <PatientClinicalData
               clinicalData={clinicalData}
-              id={location.state._id}
+              id={location?.state?._id}
             />
           </div>
         </div>

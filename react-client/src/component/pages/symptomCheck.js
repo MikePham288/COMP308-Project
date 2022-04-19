@@ -1,12 +1,8 @@
-import { useContext, useEffect, useState } from "react";
-import AuthContext from "../../context/auth/authContext";
-import axios from "axios";
-import { withRouter } from "react-router-dom";
+import { useState } from "react";
 import { Form, Button } from "react-bootstrap";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
-const SymptomCheck = (props) => {
-  const OPTIONS = ["Flu", "Cold", "Other"];
+const SymptomCheck = () => {
   const [symptomCount, setSymptomCount] = useState({
     count: 0,
   });

@@ -1,9 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../../context/auth/authContext";
 import AlertContext from "../../context/alert/alertContext";
 import PatientContext from "../../context/patient/patientContext";
-import axios from "axios";
 
 const PatientVitalSign = () => {
   // Redirect to appropriate component using history
@@ -20,8 +18,6 @@ const PatientVitalSign = () => {
   const { setAlert } = alertContext;
 
   const { addVitalSign, error1, clearErrors, vitalSignAdded } = patientContext;
-
-  const apiUrl = "http://localhost:3000/api/patient";
 
   // states to get the user lregistration information in the form
   const [vitalSign, setVitalSign] = useState({

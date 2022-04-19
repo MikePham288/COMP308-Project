@@ -1,9 +1,27 @@
 import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../context/auth/authContext";
-import axios from "axios";
-import { withRouter } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router";
+import gql from "graphql-tag";
+import { client } from "../..";
+const ADD_MOTIVATION_TIP = gql`
+  mutation AddMotivationalTip(
+    $patientId: String
+    $type: String
+    $videoLink: String
+  ) {
+    addMotivationalTip(
+      patientId: $patientId
+      type: $type
+      videoLink: $videoLink
+    ) {
+      _id
+      account {
+        _id
+      }
+    }
+  }
+`;
 
 const AddPatientMotivationalTip = (props) => {
   const navigate = useNavigate();
@@ -14,7 +32,6 @@ const AddPatientMotivationalTip = (props) => {
     videoLink: "",
     type: "video",
   });
-  const apiUrl = "http://localhost:3000/api/addMotivationalTip/";
 
   useEffect(() => {
     loadUser();
@@ -22,8 +39,15 @@ const AddPatientMotivationalTip = (props) => {
 
   const addPatientMotivationalTip = async () => {
     if (location.state._id) {
-      await axios
-        .post(apiUrl + location.state._id, motivationalTip)
+      await client
+        .mutate({
+          mutation: ADD_MOTIVATION_TIP,
+          variables: {
+            patientId: location.state._id,
+            type: motivationalTip.type,
+            videoLink: motivationalTip.videoLink,
+          },
+        })
         .then((result) => {
           console.log(result.data);
           navigate("/showDetails", {
@@ -33,11 +57,11 @@ const AddPatientMotivationalTip = (props) => {
           });
         })
         .catch((error) => {
-          navigate("/showDetails", {
-            state: {
-              _id: location.state._id,
-            },
-          });
+          // navigate("/showDetails", {
+          //   state: {
+          //     _id: location.state._id,
+          //   },
+          // });
           console.log("error in fetching nurses:", error);
         });
     } else {
